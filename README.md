@@ -363,4 +363,93 @@ train_x = train.drop(columns=['Item_Outlet_Sales'])
 train_y = train['Item_Outlet_Sales']
 ```
 
+# Custom Transformer: OutletTypeEncoder
 
+We need to create 3 new binary columns using a custom transformer. Here are the steps we need to follow to create a custom transformer.
+
+## Define the OutletTypeEncoder Class
+
+1. Import the `BaseEstimator` from `sklearn.base`.
+2. Define the `OutletTypeEncoder` class and inherit from `BaseEstimator`.
+3. Add the `fit` and `transform` methods to the class.
+4. In the `transform` method, define the 3 new binary columns:
+   - `outlet_grocery_store`: 1 if the `Outlet_Type` is 'Grocery Store', 0 otherwise.
+   - `outlet_supermarket_3`: 1 if the `Outlet_Type` is 'Supermarket Type3', 0 otherwise.
+   - `outlet_identifier_OUT027`: 1 if the `Outlet_Identifier` is 'OUT027', 0 otherwise.
+
+```python
+# import the BaseEstimator
+from sklearn.base import BaseEstimator
+
+# define the class OutletTypeEncoder
+# This will be our custom transformer that will create 3 new binary columns
+# custom transformer must have methods fit and transform
+class OutletTypeEncoder(BaseEstimator):
+    def __init__(self):
+        pass
+
+    def fit(self, documents, y=None):
+        return self
+
+    def transform(self, x_dataset):
+        x_dataset['outlet_grocery_store'] = (x_dataset['Outlet_Type'] == 'Grocery Store')*1
+        x_dataset['outlet_supermarket_3'] = (x_dataset['Outlet_Type'] == 'Supermarket Type3')*1
+        x_dataset['outlet_identifier_OUT027'] = (x_dataset['Outlet_Identifier'] == 'OUT027')*1
+        return x_dataset
+```
+
+# Data Preprocessing Steps
+
+Next, we will define the pre-processing steps required before the model building process.
+
+1. Drop the columns: `Item_Identifier`, `Outlet_Identifier`, `Item_Fat_Content`, `Item_Type`, `Outlet_Identifier`, `Outlet_Size`, `Outlet_Location_Type`, and `Outlet_Type`.
+2. Impute the missing values in the `Item_Weight` column using the mean.
+3. Scale the data in the `Item_MRP` column using `StandardScaler()`.
+
+```python
+# Drop the columns - 
+# Impute the missing values in column Item_Weight by mean
+# Scale the data in the column Item_MRP
+pre_process = ColumnTransformer(remainder='passthrough',
+                                transformers=[('drop_columns', 'drop', ['Item_Identifier',
+                                                                        'Outlet_Identifier',
+                                                                        'Item_Fat_Content',
+                                                                        'Item_Type',
+                                                                        'Outlet_Identifier',
+                                                                        'Outlet_Size',
+                                                                        'Outlet_Location_Type',
+                                                                        'Outlet_Type'
+                                                                       ]),
+                                              ('impute_item_weight', SimpleImputer(strategy='mean'), ['Item_Weight']),
+                                              ('scale_data', StandardScaler(),['Item_MRP'])])
+```
+
+# Predict the Target
+
+This will be the final block of the machine learning pipeline. We will specify 3 steps:
+
+1. Create binary columns using the `OutletTypeEncoder` transformer.
+2. Preprocess the data using the `pre_process` transformer.
+3. Train a Random Forest Regressor model.
+
+When we use the `fit()` function with a pipeline object, all three steps are executed. Post the model training process, we use the `predict()` function that uses the trained model to generate the predictions.
+
+```python
+# Define the Pipeline
+"""
+Step1: get the oultet binary columns
+Step2: pre processing
+Step3: Train a Random Forest Model
+"""
+model_pipeline = Pipeline(steps=[('get_outlet_binary_columns', OutletTypeEncoder()), 
+                                 ('pre_processing',pre_process),
+                                 ('random_forest', RandomForestRegressor(max_depth=10,random_state=2))
+                                 ])
+# fit the pipeline with the training data
+model_pipeline.fit(train_x,train_y)
+
+# predict target values on the training data
+model_pipeline.predict(train_x)
+```
+
+Now, we will read the test data set and call the `predict` function only on the pipeline object to make predictions on the test data.
