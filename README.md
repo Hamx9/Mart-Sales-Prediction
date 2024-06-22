@@ -140,3 +140,64 @@ train.head()
 | NCD19           | 8.93        | 1                        | 0                       | 0                       | 0                 | 0                   | 0.000000        | 0               | 0                     | ... | 1                | 0                 | 0                          | 1                          | 0                          | 1                           | 0                           | 0                        | 0                           | 994.7052          |
 
 5 rows × 47 columns
+
+
+Now that we have taken care of our categorical variables, we move on to the continuous variables. We will normalize the data in such a way that the range of all variables is almost similar. We will use the `StandardScaler` function to do this.
+
+```python
+from sklearn.preprocessing import StandardScaler
+# create an object of the StandardScaler
+scaler = StandardScaler()
+
+# fit with the Item_MRP
+scaler.fit(np.array(train.Item_MRP).reshape(-1,1))
+
+# transform the data
+train.Item_MRP = scaler.transform(np.array(train.Item_MRP).reshape(-1,1))
+```
+
+# Building the Model
+
+We will use the Linear Regression and the Random Forest Regressor to predict the sales. We will create a validation set using the `train_test_split()` function.
+
+`test_size = 0.25` such that the validation set holds 25% of the data points while the train set has 75%.
+
+```python
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+# separate the independent and target variable
+train_X = train.drop(columns=['Item_Identifier', 'Item_Outlet_Sales'])
+train_Y = train['Item_Outlet_Sales']
+
+# split the data
+train_x, valid_x, train_y, valid_y = train_test_split(train_X, train_Y, test_size=0.25)
+
+# shape of train test splits
+train_x.shape, valid_x.shape, train_y.shape, valid_y.shape
+# ((6392, 45), (2131, 45), (6392,), (2131,))
+```
+
+Now that we have split our data, we will train a linear regression model on this data and check its performance on the validation set. We will use RMSE as an evaluation metric.
+
+```python
+# LinearRegression
+LR = LinearRegression()
+
+# fit the model
+LR.fit(train_x, train_y)
+
+# predict the target on train and validation data
+train_pred = LR.predict(train_x)
+valid_pred = LR.predict(valid_x)
+
+# RMSE on train and validation data
+print('RMSE on train data: ', mean_squared_error(train_y, train_pred)**(0.5))
+print('RMSe on validation data: ', mean_squared_error(valid_y, valid_pred)**(0.5))
+# RMSE on train data:  1120.746601859512
+# RMSe on validation data:  1147.9427065958134
+```
+
+We will train a random forest regressor and see if we can get an improvement on the train and validation errors.
