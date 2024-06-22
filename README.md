@@ -201,3 +201,43 @@ print('RMSe on validation data: ', mean_squared_error(valid_y, valid_pred)**(0.5
 ```
 
 We will train a random forest regressor and see if we can get an improvement on the train and validation errors.
+
+
+# Random Forest Regressor
+
+```python
+#RandomForestRegressor
+RFR = RandomForestRegressor(max_depth=10)
+
+#fitting the model
+RFR.fit(train_x, train_y)
+
+#predict the target on train and validation data
+train_pred = RFR.predict(train_x)
+valid_pred = RFR.predict(valid_x)
+
+#RMSE on train and test data
+print('RMSE on train data :', mean_squared_error(train_y, train_pred)**(0.5))
+print('RMSE on validation data :', mean_squared_error(valid_y, valid_pred)**(0.5))
+```
+
+Output:
+```
+RMSE on train data : 894.6959458326626
+RMSE on validation data : 1107.415312588672
+```
+
+We can see a significant improvement on the RMSE values. The random forest algorithm gives us 'feature importance' for all the variables in the data.
+
+We have 45 features and not all of these features may be useful in forecasting. We will select the top 7 features which had a major contribution in forecasting sales values.
+
+If the model performance is similar in both cases (by using 45 features and by using 7 features), then we should only use the top 7 features, in order to keep the model simple and efficient.
+
+The goal is to have a less complex model without compromising on the overall model performance.
+
+```python
+#plot the 7 most important features
+plt.figure(figsize=(10,8))
+feat_importances = pd.Series(RFR.feature_importances_, index = train_x.columns)
+feat_importances.nlargest(7).plot(kind='barh');
+```
