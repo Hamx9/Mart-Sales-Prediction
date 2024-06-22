@@ -125,7 +125,8 @@ OHE = ce.OneHotEncoder(cols=['Item_Fat_Content',
 # Encode the variables
 train = OHE.fit_transform(train)
 ```
-
+/opt/conda/lib/python3.7/site-packages/category_encoders/utils.py:21: FutureWarning: is_categorical is deprecated and will be removed in a future version.  Use is_categorical_dtype instead
+  elif pd.api.types.is_categorical(cols):
 ```python
 train.head()
 ```
