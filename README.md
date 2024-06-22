@@ -243,5 +243,72 @@ feat_importances.nlargest(7).plot(kind='barh');
 ```
 
 ![image](https://github.com/Hamx9/Mart-Sales-Prediction/assets/132342505/66c823e4-ee76-4fc6-b4a4-fe498b970ffb)
+# Training Data with Top 7 Features
+
+```python
+train_x_7 = train_x[['Item_MRP',
+                      'Outlet_Type_Grocery Store',
+                      'Item_Visibility',
+                      'Outlet_Identifier_OUT027',
+                      'Outlet_Type_Supermarket Type3',
+                      'Item_Weight',
+                      'Outlet_Establishment_Year']]
+```
+
+# Validation Data with Top 7 Important Features
+
+```python
+valid_x_7 = valid_x[['Item_MRP',
+                      'Outlet_Type_Grocery Store',
+                      'Item_Visibility',
+                      'Outlet_Identifier_OUT027',
+                      'Outlet_Type_Supermarket Type3',
+                      'Item_Weight',
+                      'Outlet_Establishment_Year']]
+```
+
+# Create an Object of the RandomForestRegressor Model
+
+```python
+RFR_with_7 = RandomForestRegressor(max_depth=10, random_state=2)
+```
+
+# Fit the Model
+
+```python
+RFR_with_7.fit(train_x_7, train_y)
+```
+
+# Predict the Target on the Training and Validation Data
+
+```python
+pred_train_with_7 = RFR_with_7.predict(train_x_7)
+pred_valid_with_7 = RFR_with_7.predict(valid_x_7)
+```
+
+# RMSE on Train and Validation Data
+
+```
+RMSE on train data:  900.2794436902191
+RMSE on validation data:  1116.0683486702458
+```
+
+Using only 7 features has given us almost the same performance as the previous model where we were using 45 features. Now we will identify the final set of features that we need and the preprocessing steps for each of them.
+
+# Identifying Features to Build the Machine Learning Pipeline
+
+We must list down the final set of features and necessary preprocessing steps for each of them, to be used in the ML pipeline. Since the RandomForestRegressor model with 7 features gave us almost the same performance as the previous model with 45 features, we will only use these features for our ML pipeline.
+
+# Selected Features and Preprocessing Steps
+
+1. **Item_MRP**: It holds the price of the products. During the preprocessing step we used a standard scaler to scale these values.
+2. **Outlet_Type_Grocery Store**: A binary column which indicates if the outlet type is a grocery store or not. To use this information in the model building process, we will add a binary feature in the existing data that contains 1 (if outlet type is a grocery store) and 0 (if the outlet type is something else).
+3. **Item_Visibility**: Denotes visibility of products in the store. Since this variable had a small value range and no missing values, we did not apply any preprocessing steps on this variable.
+4. **Outlet_Type_Supermarket Type3**: Another binary column indicating if the outlet type is a 'supermarket_type_3' or not. To capture this information we will create a binary feature that stores 1 (if outlet type is supermarket_type_3) and 0 (if not).
+5. **Outlet_Identifier_OUT027**: This feature specifies whether the outlet identifier is 'OUT027' or not. Similar to the previous example, we will create a separate column that carries 1 (if outlet identifier is OUT027) or 0 (if otherwise).
+6. **Outlet_Establishment_Year**: This describes the year of establishment of the stores. Since we did not perform any transformation on values in this column, we will not preprocess it in the pipeline.
+7. **Item_Weight**: During preprocessing we observed that this column had missing values. These missing values were imputed using the average of the column. This has to be taken into account while building the pipeline.
+
+We will drop the other columns since we will not use them to train the model.
 
 
