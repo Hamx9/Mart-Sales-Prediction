@@ -311,4 +311,56 @@ We must list down the final set of features and necessary preprocessing steps fo
 
 We will drop the other columns since we will not use them to train the model.
 
+# Pipeline Design
+
+We have built a prototype to understand the preprocessing requirement for our data. It is now time to form a pipeline design based on our learning from the prototype. We will define the pipeline in 3 stages:
+
+1. **Create the required binary features**
+2. **Perform required data preprocessing and transformations:**
+   - Drop the columns that are not required
+   - Missing value imputation (Item_Weight) by average
+   - Scale the Item_MRP
+3. **Random Forest Regressor**
+
+## 1. Create the required binary features
+
+We will create a custom transformer that will add 3 new binary columns to the existing data.
+
+- Outlet_Type: Grocery Store
+- Outlet_Type: Supermarket Type3
+- Outlet_Identifier_OUT027
+
+## 2. Data Preprocessing and transformations
+
+We will use a column transformer to do the required transformations. It will contain 3 steps:
+
+1. Drop the columns that are not required for model training
+2. Impute missing values in the column Item_Weight using the average
+3. Scale the column Item_MRP using StandardScaler()
+
+## 3. Use the model to predict the target on the cleaned data
+
+This will be the final step in the pipeline. In the last two steps, we preprocessed the data and made it ready for the model building process. We will use this data and build a machine learning model to predict the Item Outlet Sales.
+
+# Building the pipeline
+
+We will read the data set and separate the independent and target variable from the training dataset.
+
+```python
+#importing required libraries
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+import category_encoders as ce 
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.pipeline import Pipeline
+
+#read training dataset
+train = pd.read_csv("../input/big-mart-sales-prediction/Train.csv")
+#separate the independent and target variables
+train_x = train.drop(columns=['Item_Outlet_Sales'])
+train_y = train['Item_Outlet_Sales']
+```
+
 
