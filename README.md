@@ -115,93 +115,12 @@ train = OHE.fit_transform(train)
 train.head()
 ```
 
-```
-Item_Identifier	Item_Weight	Item_Fat_Content_Low Fat	Item_Fat_Content_Regular	Item_Fat_Content_low fat	Item_Fat_Content_LF	Item_Fat_Content_reg	Item_Visibility	Item_Type_Dairy	Item_Type_Soft Drinks	...	Outlet_Size_High	Outlet_Size_Small	Outlet_Location_Type_Tier 1	Outlet_Location_Type_Tier 3	Outlet_Location_Type_Tier 2	Outlet_Type_Supermarket Type1	Outlet_Type_Supermarket Type2	Outlet_Type_Grocery Store	Outlet_Type_Supermarket Type3	Item_Outlet_Sales
-0	FDA15	9.30	1	0	0	0	0	0.016047	1	0	...	0	0	1	0	0	1	0	0	0	3735.1380
-1	DRC01	5.92	0	1	0	0	0	0.019278	0	1	...	0	0	0	1	0	0	1	0	0	443.4228
-2	FDN15	17.50	1	0	0	0	0	0.016760	0	0	...	0	0	1	0	0	1	0	0	0	2097.2700
-3	FDX07	19.20	0	1	0	0	0	0.000000	0	0	...	0	0	0	1	0	0	0	1	0	732.3800
-4	NCD19	8.93	1	0	0	0	0	0.000000	0	0	...	1	0	0	1	0	1	0	0	0	994.7052
+| Item_Identifier | Item_Weight | Item_Fat_Content_Low Fat | Item_Fat_Content_Regular | Item_Fat_Content_low fat | Item_Fat_Content_LF | Item_Fat_Content_reg | Item_Visibility | Item_Type_Dairy | Item_Type_Soft Drinks | ... | Outlet_Size_High | Outlet_Size_Small | Outlet_Location_Type_Tier 1 | Outlet_Location_Type_Tier 3 | Outlet_Location_Type_Tier 2 | Outlet_Type_Supermarket Type1 | Outlet_Type_Supermarket Type2 | Outlet_Type_Grocery Store | Outlet_Type_Supermarket Type3 | Item_Outlet_Sales |
+|-----------------|-------------|--------------------------|-------------------------|-------------------------|-------------------|---------------------|-----------------|-----------------|----------------------|-----|-----------------|-------------------|----------------------------|----------------------------|----------------------------|------------------------------|------------------------------|-------------------------|-----------------------------|--------------------|
+| FDA15           | 9.30        | 1                        | 0                       | 0                       | 0                 | 0                   | 0.016047        | 1               | 0                     | ... | 0                | 0                 | 1                          | 0                          | 0                          | 1                           | 0                           | 0                        | 0                           | 3735.1380         |
+| DRC01           | 5.92        | 0                        | 1                       | 0                       | 0                 | 0                   | 0.019278        | 0               | 1                     | ... | 0                | 0                 | 0                          | 1                          | 0                          | 0                           | 1                           | 0                        | 0                           | 443.4228          |
+| FDN15           | 17.50       | 1                        | 0                       | 0                       | 0                 | 0                   | 0.016760        | 0               | 0                     | ... | 0                | 0                 | 1                          | 0                          | 0                          | 1                           | 0                           | 0                        | 0                           | 2097.2700         |
+| FDX07           | 19.20       | 0                        | 1                       | 0                       | 0                 | 0                   | 0.000000        | 0               | 0                     | ... | 0                | 0                 | 0                          | 1                          | 0                          | 0                           | 0                           | 1                        | 0                           | 732.3800          |
+| NCD19           | 8.93        | 1                        | 0                       | 0                       | 0                 | 0                   | 0.000000        | 0               | 0                     | ... | 1                | 0                 | 0                          | 1                          | 0                          | 1                           | 0                           | 0                        | 0                           | 994.7052          |
+
 5 rows × 47 columns
-```
-
-## Normalizing Continuous Variables
-
-```python
-from sklearn.preprocessing import StandardScaler
-
-# Create an object of the StandardScaler
-scaler = StandardScaler()
-
-# Fit with the Item_MRP
-scaler.fit(np.array(train.Item_MRP).reshape(-1,1))
-
-# Transform the data
-train.Item_MRP = scaler.transform(np.array(train.Item_MRP).reshape(-1,1))
-```
-
-## Building the Model
-
-We will use the Linear Regression and the Random Forest Regressor to predict the sales. We will create a validation set using the `train_test_split()` function.
-
-```python
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
-
-# Separate the independent and target variable
-train_X = train.drop(columns=['Item_Identifier', 'Item_Outlet_Sales'])
-train_Y = train['Item_Outlet_Sales']
-
-# Split the data
-train_x, valid_x, train_y, valid_y = train_test_split(train_X, train_Y, test_size=0.25) 
-
-# Shape of train test splits
-train_x.shape, valid_x.shape, train_y.shape, valid_y.shape
-```
-
-```
-((6392, 45), (2131, 45), (6392,), (2131,))
-```
-
-### Linear Regression
-
-```python
-# LinearRegression
-LR = LinearRegression()
-
-# Fit the model
-LR.fit(train_x, train_y)
-
-# Predict the target on train and validation data
-train_pred = LR.predict(train_x)
-valid_pred = LR.predict(valid_x)
-
-# RMSE on train and validation data
-print('RMSE on train data: ', mean_squared_error(train_y, train_pred)**(0.5))
-print('RMSe on validation data: ', mean_squared_error(valid_y, valid_pred)**(0.5))
-```
-
-```
-RMSE on train data:  1120.746601859512
-RMSe on validation data:  1147.9427065958134
-```
-
-### Random Forest Regressor
-
-```python
-# RandomForestRegressor
-RFR = RandomForestRegressor(max_depth=10)
-
-# Fitting the model
-RFR.fit(train_x, train_y)
-
-# Predict the target on train and validation data
-train_pred = RFR.predict(train_x)
-valid_pred = RFR.predict(valid_x)
-
-# RMSE on train and test data
-print('RMSE on train data :', mean_squared_error(train_y, train_pred)**(0.5))
-print('RMSE on validation data :', mean_squared_error(valid_y, valid_pred)**(0.5))
-```
