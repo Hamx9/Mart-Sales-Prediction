@@ -93,6 +93,17 @@ Outlet_Location_Type          object
 Outlet_Type                   object
 ...
 ```
+Our data has the following categorical variables
+
+Item_Identifier
+Item_Fat_Content
+Item_Type
+Outlet_Identifier
+Outlet_Size
+Outlet_Type
+Outlet_Location_Type
+We will use the categorical_encorders library to convert these variables into binary variables. We will not convert Item_Identifier.
+
 
 ## One-Hot Encoding Categorical Variables
 
