@@ -241,6 +241,7 @@ plt.figure(figsize=(10,8))
 feat_importances = pd.Series(RFR.feature_importances_, index = train_x.columns)
 feat_importances.nlargest(7).plot(kind='barh');
 ```
-![__results___23_0](https://github.com/Hamx9/Mart-Sales-Prediction/assets/132342505/6eb4a08d-0743-4bcd-bd4b-c63e18268aa8)
+
+![image](https://github.com/Hamx9/Mart-Sales-Prediction/assets/132342505/66c823e4-ee76-4fc6-b4a4-fe498b970ffb)
 
 
